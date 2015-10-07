@@ -1,0 +1,132 @@
+<?php 
+	$ssFilter			= $this->ssFilter;
+	$currentController	= $this->layout()->controller;
+	
+	// CREATE INPUT HIDDEN
+	$inputHiddenOrder	= $this->zvnFormHidden('order', $ssFilter['order']);
+	$inputHiddenOrderBy	= $this->zvnFormHidden('order_by', $ssFilter['order_by']);
+	$inputStatusID		= $this->zvnFormHidden('status_id', null);
+	$inputStatusValue	= $this->zvnFormHidden('status_value', null);
+	$inputShowID		= $this->zvnFormHidden('show_id', null);
+	$inputShowValue		= $this->zvnFormHidden('show_value', null);
+	$inputMenuID		= $this->zvnFormHidden('menu_id', null);
+	$inputMenuValue		= $this->zvnFormHidden('menu_value', null);
+	
+	$strInputHidden		= $inputHiddenOrder . $inputHiddenOrderBy . $inputStatusID . $inputStatusValue .$inputShowID . $inputShowValue . $inputMenuID . $inputMenuValue;
+
+	// CREATE SELECTBOX
+	$arrKeywordType 	= array( 'name'	=> 'Tìm theo tên', 'id' => 'Tìm theo mã', 'all' => 'Tìm tất cả');
+	$slbKeywordType 	= $this->zvnFormSelect('filter_keyword_type', null , $arrKeywordType, $ssFilter['filter_keyword_type']);
+	$slbFilterStatus	= $this->zvnFormSelect('filter_status', '-- Chọn trạng thái --', array('active' => 'Kích hoạt', 'inactive' => 'Không kích hoạt'), $ssFilter['filter_status']);
+	$slbFilterLevel		= $this->zvnFormSelect('filter_level', '-- Chọn cấp --', $this->slbLevel, $ssFilter['filter_level']);
+	
+	// CREATE INPUT
+	$inputKeyword		= $this->zvnFormInput('filter_keyword_value', $ssFilter['filter_keyword_value'], array('class' => 'form-control input-sm'));
+	
+	// CREATE BUTTON
+	$btnClear			= $this->zvnFormButton('btn-clear', 'btn-clear', 'Xóa', array('class' => 'btn-default'));
+	$btnSearch			= $this->zvnFormButton('btn-go', 'btn-go', 'Tìm!', array('class' => 'btn-primary'));
+	
+	// DATA ITEM
+	$xhtmlItems	= '';
+	
+	if(!empty($this->items)){
+		foreach ($this->items as $item) {
+			
+			$class		= $this->cycle(array('odd','even'))->next();
+			$id			= $item->id;
+			$space		= str_repeat('<span class="gi">|——</span>', $item->level - 1);
+			$name		= $item->name;
+			$href		= $item->href;
+			$url		= $item->url;
+			$menu		= $this->CmsButtonMenu($id,$item->menu);
+			$show		= $this->CmsButtonShow($id,$item->show);
+			$status		= $this->cmsButtonStatus($id,$item->status);
+			
+			// Ordering
+			$childList[$item->parent][]	= $item->id;
+			$orderingValue	= array_search($item->id, $childList[$item->parent]);
+			$ordering		= $this->zvnFormInput('ordering['.$id.']', $orderingValue + 1, array('class' => 'input-ordering'));
+			
+			$btnMoveUp		= $this->cmsButtonMove($id, 'up', $ssFilter, $item->left, $item->pleft + 1);
+			$btnMoveDown	= $this->cmsButtonMove($id, 'down', $ssFilter, $item->right + 1, $item->pright);
+			
+			$cid		= $this->zvnFormInput('cid[]', $id, array('type' => 'checkbox'));
+			$linkEdit	= $this->cmsLinkAdmin(array('controller' => $currentController, 'action' => 'form', 'id' => $id));
+			$linkParent = $this->cmsLinkAdmin(array('controller' => $currentController, 'action' => 'index', 'id' => $id));
+			$xhtmlItems .= '<tr class="'.$class.'">
+								<td>'.$cid.'</td>
+								<td><a class="label label-primary" href="'.$linkEdit.'"><i class="fa fa-edit"></i> Sửa</a></td>		
+								<td style="text-align:left"> '.$space .'<a href="'.$linkParent.'">' . $name.'</a></td>
+								<td class="area-order">'. $ordering.'</td>
+								<td>'.$href.'</td>	
+								<td>'.$url.'</td>	
+								<td>'.$menu.'</td>
+								<td>'.$show.'</td>	
+								<td>'.$status.'</td>
+							</tr>';
+		}
+	}
+	// LINK FORM SUBMIT
+	$linkFormSubmit	= $this->cmsLinkAdmin(array('controller' => $currentController, 'action' => 'filter'));
+	
+	
+?>
+
+<!-- BUTTON -->
+<?php echo $this->render('area_toolbar.phtml'); ?>
+
+<!-- NOTICE -->
+<?php echo $this->flashMessenger()->render();?>
+
+<div class="box box-info">	
+<form name="adminForm" id="adminForm" action="<?php echo $linkFormSubmit;?>" method="post">
+	<!-- FILTER -->
+	<div class="box-header" style="padding-top: 10px;">
+		<!-- FILTER KEYWORD -->
+		<div class="col-xs-6">
+			<?php
+				echo $this->partial('area_search.phtml', array( 'slbKeywordType' => $slbKeywordType,  'inputKeyword' => $inputKeyword, 'strButton'	=> $btnClear . $btnSearch));
+			?>
+		</div>
+		<!-- FILTER STATUS -->
+		<div class="col-xs-6">
+			<div class="dataTables_filter pull-right">
+				<?php echo $slbFilterLevel . ' ' . $slbFilterStatus; ?>
+			</div>
+		</div>
+	</div>
+	
+	<div class="box-body table-responsive">
+		<div class="dataTables_wrapper" role="grid">
+			<table class="table table-bordered table-striped dataTable text-center">
+				<!-- COLUMN TITLE -->
+				<thead>
+					<tr role="row">
+						<th class="small-col"><input type="checkbox" id="check-all" /></th>
+						<th class="small-col">Chức năng</th>
+						<?php echo $this->cmsLinkSort('Tên', 'name', $ssFilter); ?>
+						<?php echo $this->cmsLinkSort('Thứ tự', 'ordering', $ssFilter, array('style'=>'width:12%')); ?>
+						<?php echo $this->cmsLinkSort('Tên chức năng', 'href', $ssFilter); ?>
+						<?php echo $this->cmsLinkSort('Link', 'url', $ssFilter); ?>
+						<?php echo $this->cmsLinkSort('Menu', 'menu', $ssFilter, array('style'=>'width:7%')); ?>	
+						<?php echo $this->cmsLinkSort('Ẩn hiện', 'show', $ssFilter, array('style'=>'width:7%')); ?>						
+						<?php echo $this->cmsLinkSort('Kích hoạt', 'status', $ssFilter, array('style'=>'width:8%')); ?>						
+					</tr>
+				</thead>
+
+				<!-- CONTENT TABLE -->
+				<tbody><?php echo $xhtmlItems;?></tbody>
+			</table>
+			
+			<!-- PAGINATION -->
+			<?php
+				$currentURL = $this->cmsLinkAdmin(array('controller' => $currentController, 'action' => 'index'));
+				echo $this->paginationControl ( $this->paginator, 'sliding', 'paginator.phtml', array ('currentURL' => $currentURL ));
+			?>
+		</div>
+	</div>
+	<!-- INPUT HIDDEN -->
+	<?php echo $strInputHidden; ?>
+</form>
+</div>

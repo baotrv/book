@@ -1,0 +1,121 @@
+<?php 
+use Zendvn\System\Info;
+use Zendvn\System\Acl;
+
+$infoObj	= new Info();
+$userInfo	= $infoObj->getUserInfo();
+$permission	= $infoObj->getPermission();
+
+if(!empty($userInfo)){
+	$fullName	= $userInfo->fullname;
+	if(!empty($userInfo->avatar)){
+		$avatarURL	= URL_FILES . '/users/thumb/' . $userInfo->avatar;
+	}else{
+		$avatarURL	= URL_FILES . '/users/thumb/no-avatar.png';
+	}
+	$date	= date('F.Y', strtotime($userInfo->created));
+}
+	
+
+	$urlImage	= URL_TEMPLATE . '/backend/img';
+	if($this->_data['item']->count() == 0) return null;
+
+	$urlHelper			= $this->getView()->plugin('url'); 
+	$LinkSysfunction	= $this->getView()->plugin('LinkSysfunction'); 
+	
+	$xhtml		= '';
+	$xhtmlchild	= '';
+	foreach ($this->_data['item'] as $category){
+		
+		// CHECK PERMISSION
+		if($permission['privileges'] != 'full'){
+			$aclObj	= new Acl($permission['role'], $permission['privileges']);
+			if (!empty($category->url) || $category->url <> 0){
+				$arrayexplode 		= explode('/',$category->url);
+				$url['module'] 		= $arrayexplode['0'];
+				$url['controller'] 	= $arrayexplode['1'];
+				$url['action'] 		= $arrayexplode['2'];
+			}else{
+// 				$url['module'] 		= 'admin';
+// 				$url['controller'] 	= 'index';
+// 				$url['action'] 		= 'index';
+			}
+		
+			if($aclObj->isAllowed($url) == true){
+				
+				$classLI	= ($category->level == 1) ? 'treeview' : '';
+				$link		= $LinkSysfunction().$category->url;
+				$name		= $category->href;
+				$icon		= '';
+				$id 		= $category->id;
+				//GET PARENT BY ID
+    			$parentById	= $this->_data['parentbyid']->parentById($id,array('task'=>'form-sysfunction-parnetid'));
+				if(!empty($parentById)){
+					
+// 					foreach ($this->_data['item'] as $categoryChild){
+// 						$classLIchild	= ($categoryChild->level == 1) ? 'treeview' : '';
+// 						$linkchild		= $LinkSysfunction().$categoryChild->url;
+// 						$namechild		= $categoryChild->href;
+// 						$iconchild		= '';
+// 						$idchild 		= $categoryChild->id;
+// 						$xhtmlChild .= sprintf('<li class="admin-%s">
+// 												<a data-id="%s" href="%s" style="margin-left: 10px;">
+// 													<i class="fa fa-%s"></i> %s
+// 												</a>
+// 											</li>',$classLIchild,$idchild,$linkchild,$iconchild,$namechild);
+// 					}
+					$xhtml .= sprintf('<li class="treeview admin-%s">
+										<a data-id="%s" href="%s">
+											<i class="fa fa-%s"></i> <span>%s</span><i class="fa fa-angle-left pull-right"></i>
+										</a>
+										<ul class="treeview-menu">
+											%s
+										</ul>
+									</li>',$classLI,$id,$link,$icon,$name, $xhtmlChild);
+					
+// 					$xhtmlchild		.= sprintf('<li class="admin-%s">
+// 													<a data-id="%s" href="%s" style="margin-left: 10px;">
+// 														<i class="fa fa-%s"></i> %s
+// 													</a>
+// 												</li>', $classLI, $category->id,$link,$icon, $name);			
+// 											//<ul class="treeview-menu">%s
+// 					if(in_array($category->right - 1, $parentid)) $xhtml		.= '</ul></li>';
+					//if(in_array($category->right + 2, $parentRight)) $xhtml		.= '</ul></li>';				
+				}else{
+					$xhtml		.= sprintf('<li class="admin-%s">
+												<a data-id="%s" href="%s">
+													<i class="fa fa-%s"></i> <span>%s</span>
+												</a></li>', $classLI, $category->id, $link,$icon,$name);
+				}
+			}
+		}
+	}
+?>
+
+
+<section class="sidebar">
+
+	<!-- Sidebar user panel -->
+	<div class="user-panel">
+		<div class="pull-left image">
+			<img src="<?php echo $avatarURL;?>" class="img-circle" alt="User Image">
+		</div>
+		<div class="pull-left info">
+			<p>Xin chào, <?php echo $fullName;?></p>
+			<a href="#"><i class="fa fa-circle text-success"></i>Thành viên <?php echo $date;?></a>
+		</div>
+	</div>
+
+	<!-- sidebar menu: : style can be found in sidebar.less -->
+	<ul class="sidebar-menu" style="display: block;">
+		<?php echo $xhtml;?>
+	</ul>
+</section>
+<script type="text/javascript">	
+	var classParent	= '<?php echo $this->module . "-" . $this->controller ;?>';
+	var classChild	= '<?php echo $this->module . "-" . $this->controller . "-" . $this->action;?>';
+	$('ul.sidebar-menu > li.' + classParent).addClass('active');
+	$('ul.treeview-menu > li.' + classChild).addClass('active');	
+</script>
+
+

@@ -1,0 +1,135 @@
+<?php
+	
+	$element	= $this->elm;
+	$type 		= $this->type;
+	
+	switch ($this->type) {
+		case 'hidden':
+			$xhtml	= $this->formHidden($element);
+			break;
+		case 'avatar':
+			$avatarName	= $element->getValue();
+			$xhtml		= '';
+			
+			if(!empty($avatarName)){
+				$avatarUrl = URL_FILES . '/users/thumb/'.$avatarName;
+				$xhtml	= sprintf('<div class="form-group"><label for="avatar" class="col-xs-3 control-label"></label><div class="col-xs-6">
+								<img src="%s" class="img-thumbnail"></div></div>',$avatarUrl);
+			}
+			
+			break;
+		case 'slider':
+			$imgName	= $element->getValue();
+			$xhtml		= '';
+				
+			if(!empty($imgName)){
+				$imgUrl = URL_FILES . '/sliders/'.$imgName;
+				$xhtml	= sprintf('<div class="form-group"><label for="avatar" class="col-xs-3 control-label"></label><div class="col-xs-6">
+							<img src="%s" class="img-thumbnail"></div></div>',$imgUrl);
+			}
+				
+			break;
+		case 'book':
+			$imgName	= $element->getValue();
+			$xhtml		= '';
+				
+			if(!empty($imgName)){
+				$imgUrl = URL_FILES . '/books/thumb/140x190/'.$imgName;
+				$xhtml	= sprintf('<div class="form-group"><label for="avatar" class="col-xs-3 control-label"></label><div class="col-xs-6">
+							<img src="%s" class="img-thumbnail"></div></div>',$imgUrl);
+			}
+				
+			break;
+		case 'email':
+			$email	= $element->getattributes()['name'];
+			$xhtml		= '';
+			if($email == 'Email'){
+				$xhtml	= sprintf('<div class="form-group">%s
+									<div class="col-xs-6">
+										<div class="input-group">
+	                                        <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+	                                        %s
+	                                    </div>
+									</div>
+									</div>',$this->formLabel($element),$this->formElement($element));
+			}
+			break;
+		case 'phone':
+				$phone	= $element->getattributes()['name'];
+				$xhtml		= '';
+				if($phone == 'Phone'){
+					$xhtml	= sprintf('<div class="form-group">%s
+									<div class="col-xs-6">
+										<div class="input-group">
+	                                        <span class="input-group-addon"><i class="fa fa-phone"></i></span>
+	                                        %s
+	                                    </div>
+									</div>
+									</div>',$this->formLabel($element),$this->formElement($element));
+			}
+			break;
+		case 'fax':
+			$fax	= $element->getattributes()['name'];
+			$xhtml		= '';
+			if($fax == 'Fax'){
+				$xhtml	= sprintf('<div class="form-group">%s
+						<div class="col-xs-6">
+							<div class="input-group">
+                                      <span class="input-group-addon"><i class="glyphicon">F</i></span>
+                                      %s
+                                  </div>
+						</div>
+						</div>',$this->formLabel($element),$this->formElement($element));
+			}
+			break;
+		case 'address':
+			$address	= $element->getattributes()['name'];
+			$xhtml		= '';
+			if($address == 'Address'){
+				$xhtml	= sprintf('<div class="form-group">%s
+								<div class="col-xs-6">
+									<div class="input-group">
+                                        <span class="input-group-addon"><i class="glyphicon glyphicon-home"></i></span>
+                                        %s
+                                    </div>
+								</div>
+								</div>',$this->formLabel($element),$this->formElement($element));
+			}
+			break;
+		case 'website':
+			$website	= $element->getattributes()['name'];
+			$xhtml		= '';
+			if($website == 'Website'){
+				$xhtml	= sprintf('<div class="form-group">%s
+							<div class="col-xs-6">
+								<div class="input-group">
+                                       <span class="input-group-addon"><i class="glyphicon">W</i></span>
+                                       %s
+                                   </div>
+							</div>
+							</div>',$this->formLabel($element),$this->formElement($element));
+			}
+			break;
+		case 'code':
+			$code	= $element->getattributes()['name'];
+			$xhtml		= '';
+			if($code == 'Code'){
+				$xhtml	= sprintf('<div class="form-group">%s
+						<div class="col-xs-6">
+							<div class="input-group">
+                                     <span class="input-group-addon"><i class="glyphicon glyphicon-barcode"></i></span>
+                                     %s
+                                  </div>
+						</div>
+						</div>',$this->formLabel($element),$this->formElement($element));
+			}
+			break;
+		default:
+			$xhtml = sprintf('<div class="form-group">%s<div class="col-xs-6">%s</div></div>', 
+								$this->formLabel($element),$this->formElement($element));
+			break;
+	}
+	
+	echo $xhtml;
+	
+?>

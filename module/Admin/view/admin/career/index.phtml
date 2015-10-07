@@ -1,0 +1,120 @@
+<?php 
+	$ssFilter			= $this->ssFilter;
+	$currentController	= $this->layout()->controller;
+	
+	// CREATE INPUT HIDDEN - TẠO INPUT ẨN
+	$inputHiddenOrder		= $this->zvnFormHidden('order', $ssFilter['order']);
+	$inputHiddenOrderBy		= $this->zvnFormHidden('order_by', $ssFilter['order_by']);
+	$inputStatusID			= $this->zvnFormHidden('status_id', null);
+	$inputStatusValue		= $this->zvnFormHidden('status_value', null);
+	
+	$strInputHidden			= $inputHiddenOrder . $inputHiddenOrderBy . $inputStatusID . $inputStatusValue;
+
+	// CREATE SELECTBOX - TẠO SELECTBOX
+	$arrKeywordType 	= array( 'Name'	=> 'Tên', 'Id' => 'Mã', 'Sort' => 'Xắp sếp', 'all' => 'Tất cả');
+	$slbKeywordType 	= $this->zvnFormSelect('filter_keyword_type', null , $arrKeywordType, $ssFilter['filter_keyword_type']);
+	$slbParent		 	= $this->zvnFormSelect('filter_parent', null , $this->slbParent, $ssFilter['parent_id'],array('class'=>'input-sx'));
+	// CREATE INPUT - TẠO INPUT
+	$inputKeyword		= $this->zvnFormInput('filter_keyword_value', $ssFilter['filter_keyword_value'], array('class' => 'form-control input-sm'));
+	
+	// CREATE BUTTON - TẠO NÚT
+	$btnClear			= $this->zvnFormButton('btn-clear', 'btn-clear', 'Xóa', array('class' => ' btn-default'));
+	$btnSearch			= $this->zvnFormButton('btn-go', 'btn-go', 'Tìm!', array('class' => 'btn-primary'));
+	$btnDelete			= $this->zvnFormButton('btn-delete', 'btn-delete', 'Xóa', array('class' => ' label bg-red','data-toggle' => 'modal', 'data-target' => '#DeleteModal'));
+	// DATA ITEM - MỤC DỮ LIỆU
+	$xhtmlItems	= '';
+	if(!empty($this->items)){		
+		foreach ($this->items as $item) {
+			$class		= $this->cycle(array('odd','even'))->next();
+			$id			= $item->Id;
+			$ma 		= $item->Code;
+			$Name		= $item->Name;
+			$CAP1		= $item->CAP1;
+			$CAP2		= $item->CAP2;
+			$CAP3		= $item->CAP3;
+			$CAP4		= $item->CAP4;
+			$CAP5		= $item->CAP5;
+			$parentId 	= $item->Parentid;
+			$ordering	= $this->zvnFormInput('ordering['.$id.']', $item->Sort, array('class' => 'input-ordering'));
+			$cid		= $this->zvnFormInput('cid[]', $id, array('type' => 'checkbox'));
+			$linkEdit	= $this->cmsLinkAdmin(array('controller' => $currentController, 'action' => 'form', 'id' => $id));
+			$linkDelete	= $this->cmsLinkAdmin(array('controller' => $currentController, 'action' => 'delete', 'id' => $id));
+			$linkParent	= $this->cmslinkAdmin(array('controller' => $currentController, 'action' => 'index'));
+			$xhtmlItems .= '<tr class="'.$class.'">
+								<td>'.$cid.'</td>
+								<td><a class="label bg-green" href="'.$linkEdit.$parentId.'"><i class="fa fa-edit"></i> Sửa</a>
+							        <a data-show-item="yes" data-confirm="Bạn có muốn xóa bản ghi này không?" class="label bg-red " href="'.$linkDelete.'" ><i class="fa fa-trash-o"></i> Xóa</a></td>			
+								<td>'.$ma.'</td>		
+								<td><a href="'.$linkParent.$id.'">'.$Name.'</a></td>
+								<td>'.$CAP1.'</td>
+								<td>'.$CAP2.'</td>	
+								<td>'.$CAP3.'</td>	
+								<td>'.$CAP4.'</td>	
+								<td>'.$CAP5.'</td>						
+								<td>'.$ordering.'</td>		
+							</tr>';
+		}
+	}
+	// LINK FORM SUBMIT - ĐƯỜNG DẪN BỘ LỌC
+	$linkFormSubmit		= $this->cmsLinkAdmin(array('controller' => $currentController, 'action' => 'filter'));
+	//LINK
+	if(!empty($this->parentbyid->Parentid)){
+		$inputHiddenParentById	= $this->parentbyid->Parentid;
+	}else {
+		$inputHiddenParentById	= 0;
+	};	
+	$linkComeBack			= $this->cmslinkAdmin(array('controller' => $currentController, 'action' => 'index','id'=>$inputHiddenParentById));
+	
+?>
+
+<!-- BUTTON  - NÚT -->
+<?php echo $this->render('area_toolbar.phtml');?>
+<!-- NOTICE -->
+<div class="box box-info">	
+<form name="adminForm" id="adminForm" action="<?php echo $linkFormSubmit;?>" method="post">
+	<!-- FILTER -->
+	<div class="box-header" style="padding-top: 10px;">
+		<div class="col-xs-6">
+			<?php
+				echo $this->partial('area_search.phtml', array( 'slbKeywordType' => $slbKeywordType,  'inputKeyword' => $inputKeyword, 'strButton'	=> $btnClear . $btnSearch));
+			?>			
+		</div>
+	</div>
+	<div class="box-body table-responsive">		
+		<div class="dataTables_wrapper" role="grid">
+			<?php if($ssFilter['parent_id'] > 0){?>
+					<a href="<?php echo $linkComeBack?>"><i class="fa fa-fw fa-reply"></i>Lên một mức!</a>
+					<?php echo $slbParent?>
+			<?php };?>			
+			<table class="table table-bordered table-striped dataTable text-center">
+				<!-- COLUMN TITLE -->
+				<thead>
+					<tr role="row">
+						<th class="small-col"><input type="checkbox" id="check-all" /></th>
+						<th class="small-col"></th>
+						<?php echo $this->cmsLinkSort('Mã', 'Code', $ssFilter,array('style'=>'width:5%')); ?> 
+						<?php echo $this->cmsLinkSort('Tên', 'Name', $ssFilter,array('style'=>'width:30%')); ?> 
+						<?php echo $this->cmsLinkSort('Cấp 1', 'CAP1', $ssFilter,array('style'=>'width:7%')); ?>
+						<?php echo $this->cmsLinkSort('Cấp 2', 'CAP2', $ssFilter,array('style'=>'width:7%')); ?>
+						<?php echo $this->cmsLinkSort('Cấp 3', 'CAP3', $ssFilter,array('style'=>'width:7%')); ?>
+						<?php echo $this->cmsLinkSort('Cấp 4', 'CAP4', $ssFilter,array('style'=>'width:7%')); ?>
+						<?php echo $this->cmsLinkSort('Cấp 5', 'CAP5', $ssFilter,array('style'=>'width:7%')); ?>
+						<?php echo $this->cmsLinkSort('Xắp sếp', 'Sort', $ssFilter,array('style'=>'width:5%')); ?>				
+					</tr>
+				</thead>
+
+				<!-- CONTENT TABLE - NỘI DUNG BẢNG-->
+				<tbody><?php echo $xhtmlItems;?></tbody>
+			</table>
+			
+			<!-- PAGINATION  - PHÂN TRANG-->
+			<?php
+				$currentURL = $this->cmsLinkAdmin(array('controller' => $currentController, 'action' => 'index'));
+				echo $this->paginationControl ( $this->paginator, 'sliding', 'paginator.phtml', array ('currentURL' => $currentURL ,'ssFilter'=>$ssFilter));
+			?>
+		</div>
+	</div>
+	<!-- INPUT HIDDEN -->
+	<?php echo $strInputHidden; ?>
+</form>
+</div>

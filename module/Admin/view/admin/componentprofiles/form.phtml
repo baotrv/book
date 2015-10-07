@@ -1,0 +1,49 @@
+<?php 
+	$this->headScript()->appendFile(URL_SCRIPTS . '/ckeditor/ckeditor.js', 'text/javascript');
+?>
+<!-- BUTTON -->
+<?php echo $this->render('area_toolbar.phtml'); ?>
+<?php 
+	$ssFilter			= $this->ssFilter;
+	// CREATE SELECTBOX - TẠO SELECTBOX
+	$slbParent		 	= $this->zvnFormSelect('parent_by_id', null , $this->slbParent, $ssFilter['parent_by_id'],array('class'=>'input-sm form-control'));
+	$xhml	= sprintf('<div class="form-group">
+							<label for="filter_parent" class="col-xs-3 control-label">Cấp cha</label>
+							<div class="col-xs-6">%s</div>
+						</div>',$slbParent);
+?>
+	
+<!-- NOTICE -->
+<?php echo $this->flashMessenger()->render();?>
+<?php echo $this->myForm->showMessage();?>
+
+<div class="box box-info">
+	<div class="box-body">
+		
+		<?php
+			$myForm				= $this->myForm;
+			$myForm->prepare();
+			echo $this->form()->openTag($myForm);
+				if (!empty($ssFilter['parent_by_id'])&& $ssFilter['parent_by_id'] > 0){
+					echo $xhml;
+				}
+				echo $this->partialLoop('form_row.phtml', array(
+						array('elm' => $myForm->get('Code'),'type' => 'code'),
+						array('elm' => $myForm->get('Name')),
+						array('elm' => $myForm->get('Desription')),
+						array('elm' => $myForm->get('Sort')),
+						array('elm' => $myForm->get('IsDefault')),
+						array('elm' => $myForm->get('Id'), 'type' => 'hidden'),
+						array('elm' => $myForm->get('action'), 'type' => 'hidden'),
+				));
+			echo $this->form()->closeTag();
+		?>
+	</div>
+</div>
+
+<?php echo $this->headScript()->captureStart();?>
+	CKEDITOR.replace( 'Desription' , {
+		customConfig	: '<?php echo URL_SCRIPTS . '/ckeditor'?>' + '/config-book-description.js'
+	});
+<?php echo $this->headScript()->captureEnd();?>
+

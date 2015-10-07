@@ -1,0 +1,25 @@
+<!-- BUTTON -->
+<?php echo $this->render('area_toolbar.phtml'); ?>
+
+<!-- NOTICE -->
+<?php echo $this->flashMessenger()->render();?>
+<?php echo $this->myForm->showMessage();?>
+
+<div class="box box-info">
+	<div class="box-body">
+		<?php
+			$myForm				= $this->myForm;
+			echo $this->form()->openTag($myForm);
+				echo $this->partialLoop('form_row.phtml', array(
+						array('elm' => $myForm->get('name_permission')),						
+						array('elm' => $myForm->get('module_permission')),
+						array('elm' => $myForm->get('controller_permission')),
+						array('elm' => $myForm->get('action_permission')),
+						array('elm' => $myForm->get('id'), 'type' => 'hidden'),
+						array('elm' => $myForm->get('action'), 'type' => 'hidden'),
+				));
+			echo $this->form()->closeTag();
+			
+		?>	
+	</div>
+</div>

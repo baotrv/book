@@ -1,0 +1,68 @@
+<?php 
+	$ssFilter			= $this->ssFilter;
+	//$name, $icon, $type, $showTotal = null, $link = null
+	$currentController	= $this->layout()->controller;
+	$currentAction		= $this->layout()->action;
+	
+	switch ($currentAction) {
+		case 'index':
+			$btnUpdate		= $this->cmsButtonToolbar(ENUM_ORDERING, 'fa-refresh', 'ordering', 'yes', null);
+			
+			$linkAdd		= $this->cmsLinkAdmin(array('controller' => $currentController, 'action' => 'form'));
+			if (!empty($ssFilter['parent_id'])){
+				$parentId 	= $ssFilter['parent_id'];
+			}else{
+				$parentId 	=0;
+			};
+			$btnAdd			= $this->cmsButtonToolbar(ENUM_ADD, 'fa-plus-square-o', null, null, $linkAdd.'0/'.$parentId);
+			
+			$btnActive		= $this->cmsButtonToolbar(ENUM_ACTIVE, 'fa-check-circle-o', 'active', 'yes', null);
+			$btnInActive	= $this->cmsButtonToolbar(ENUM_INACTIVE, 'fa-circle-o', 'inactive', 'yes', null);
+			$btnDelete		= $this->CmsButtonToolbarDelete(ENUM_DELETE, 'fa-minus-square-o', 'delete', 'yes', null);
+			
+			$strToolbar 	= $btnUpdate . $btnAdd . $btnActive . $btnInActive . $btnDelete;
+			if($currentController == 'category') {
+				$strToolbar 	= $btnAdd . $btnActive . $btnInActive . $btnDelete;
+			}
+			
+			break;
+			
+		case 'form':
+			$btnSave		= $this->cmsButtonToolbar(ENUM_SAVE, 'fa-save', 'save', null, null);
+			$btnSaveClose	= $this->cmsButtonToolbar(ENUM_SAVE_CLOSE, 'fa-folder-open-o', 'save-close', null, null);
+			$btnSaveNew		= $this->cmsButtonToolbar(ENUM_SAVE_NEW, 'fa-plus-square', 'save-new', null, null);
+			
+			$linkCancel		= $this->cmsLinkAdmin(array('controller' => $currentController, 'action' => 'index'));
+			$btnCancel		= $this->cmsButtonToolbar(ENUM_CANCEL, 'fa-arrow-circle-left', null, null, $linkCancel);
+			
+			$strToolbar 	= $btnSave . $btnSaveClose . $btnSaveNew . $btnCancel;
+			break;
+			
+		default:
+			break;
+	}
+?>
+<div class="row">
+	<div class="text-center">
+		<?php echo $strToolbar;?>
+	</div>
+</div>
+
+<div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="H3">Xóa bản ghi?</h4>
+      </div>
+      <div class="modal-body">
+       Bạn có muốn xóa bản ghi này không?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+        <a type="button" class="btn btn-danger" data-type="delete">Xóa</a>
+      </div>
+    </div>
+  </div>
+</div>
+
