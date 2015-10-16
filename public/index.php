@@ -1,5 +1,5 @@
 <?php
-	// 	include file config các hằng số 
+	// 	include file config các hằng số  gjwlgjwljglw
 	include_once 'define.php';
 	// 	include Đường dẫn thư mục chứa thư viện
 	include_once PATH_LIBRARY . '/Zend/Loader/AutoloaderFactory.php';
