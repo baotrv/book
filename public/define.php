@@ -3,7 +3,6 @@
 	 * 30/07/2015
 	 * định nghĩa(definitions) hằng số(constant) cho ứng dụng(application)
 	 * constant definitions for the application
-	 gjwjgwljgwl
 	 */
 	define('BOOKONLINE_KEY', 'hkjsdsi');
 	define('URL_FRIENDLY', true);
